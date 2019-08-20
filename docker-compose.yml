@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  farcry2-server:
+    image: 238e7149762f
+    restart: always
+    ports:
+     - "9000-9004:9000-9004/udp"
+    volumes:
+     - ./data:/farcry2

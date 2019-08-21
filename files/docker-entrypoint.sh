@@ -20,5 +20,5 @@ fi
 # shellcheck disable=SC2086
 #exec $SU_EXEC /opt/farcry2/bin/FarCry2_server \
 exec /opt/farcry2/bin/FarCry2_server \
-  --dedicated=dedicated_server.cfg
+  --dedicated /server.cfg
   "$@"

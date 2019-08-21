@@ -13,11 +13,13 @@ if [[ $(id -u) = 0 ]]; then
   # Take ownership of farcry2 data if running as root
   chown -R farcry2:farcry2 "$VOLUME"
   # Drop to the farcry2 user
-  SU_EXEC="su-exec farcry2"
+  SU_EXEC="su - farcry2"
 else
   SU_EXEC=""
 fi
 
 # shellcheck disable=SC2086
-exec $SU_EXEC /opt/farcry2/bin/FarCry2_server \
+#exec $SU_EXEC -- /opt/farcry2/bin/FarCry2_server \
+
+exec /opt/farcry2/bin/FarCry2_server \
   "$@"

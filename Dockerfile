@@ -21,7 +21,7 @@ RUN set -x && \
     directory="/opt/FarCry2_Dedicated_Server_Linux" && \
     mkdir -p /opt /farcry2 && \
     apt-get update && \
-    apt-get upgrade -y && \ 
+    apt-get upgrade -y && \
     apt-get install -y curl lib32stdc++6 && \
     curl -sSL "$url" -o "$archive" && \
     echo "$SHA256  $archive" | sha256sum -c || \
@@ -34,12 +34,13 @@ RUN set -x && \
     #ln -s "$MAPS" /opt/farcry2/bin/user\ maps && \
     groupadd -g "$PGID" "$GROUP" && \
     useradd -u "$PUID" -g "$GROUP" -s /bin/sh "$USER" && \
-    chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2 && \
+    chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2
 
 VOLUME /farcry2
- 
+
 EXPOSE 9000-9003/udp 9000/tcp
 
 COPY files/ /
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
+

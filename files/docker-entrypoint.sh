@@ -8,7 +8,7 @@ mkdir -p "$MAPS"
 
 if [[ ! -f $CONFIG/server.cfg ]]; then
   # Copy default settings if server.cfg doesn't exist
-  cp /server.cfg "$CONFIG/server.cfg"
+  mv /server.cfg "$CONFIG/server.cfg"
 fi
 
 if [[ $(id -u) = 0 ]]; then
@@ -19,7 +19,7 @@ if [[ $(id -u) = 0 ]]; then
   chown -R "$USER":"$GROUP" "$VOLUME"
 
   # Drop to the farcry2 user
-#  SU_EXEC="su farcry2 -c"
+#  SU_EXEC="su $USER -c"
 #else
 #  SU_EXEC=""
 fi
@@ -27,5 +27,5 @@ fi
 # shellcheck disable=SC2086
 #exec $SU_EXEC /opt/farcry2/bin/FarCry2_server \
 exec /opt/farcry2/bin/FarCry2_server \
-  --dedicated /farcry2/config/server.cfg
+  --dedicated "$VOLUME"/config/server.cfg
   "$@"

@@ -15,6 +15,8 @@ ENV SHA256=281e69fc0cccfa4760ba8db3b82315f52d2f090d9d921dc3adc89afbf046898a \
     PUID="$PUID" \
     PGID="$PGID"
 
+COPY files/ /
+
 RUN set -x && \
     url="https://static3.cdn.ubi.com/far_cry_2/FarCry2_Dedicated_Server_Linux.tar.gz" && \
     archive="/tmp/FarCry2_Dedicated_Server_Linux.tar.gz" && \
@@ -22,7 +24,7 @@ RUN set -x && \
     mkdir -p /opt /farcry2 && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y curl lib32stdc++6 && \
+    apt-get install -y curl lib32stdc++6 lib32ncurses5 lib32z1 && \
     curl -sSL "$url" -o "$archive" && \
     echo "$SHA256  $archive" | sha256sum -c || \
     (sha256sum  "$ARCHIVE_FILE" && file "$ARCHIVE_FILE" && exit 1) && \
@@ -30,17 +32,27 @@ RUN set -x && \
     mv $directory /opt/farcry2 && \
     chmod ugo=rwx /opt/farcry2 && \
     rm "$archive" && \
-    #ln -s "$MAPS" /opt/farcry2/user\ maps && \
-    #ln -s "$MAPS" /opt/farcry2/bin/user\ maps && \
+
+#    rm /opt/farcry2/bin/pb/htm/* && \
+#    rm /opt/farcry2/bin/pb/*.db && \
+#    rm /opt/farcry2/bin/pb/*.dat && \
+
+#    mkdir /opt/farcry2/bin/pb/dll && \
+#    mv /pb/dll/*.* /opt/farcry2/bin/pb/dll && \
+#    rmdir /pb/dll && \
+#    mv /pb/htm/*.* /opt/farcry2/bin/pb/htm && \
+#    rmdir /pb/htm && \
+#    mv /pb/*.* /opt/farcry2/bin/pb && \
+#    rmdir /pb && \
+#    ln -s "$MAPS" /opt/farcry2/user\ maps && \
     groupadd -g "$PGID" "$GROUP" && \
     useradd -u "$PUID" -g "$GROUP" -s /bin/sh "$USER" && \
     chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2
 
+#    echo "sv_punkbuster 1" > /opt/farcry2/bin/pb/pbsvgame.cfg
+
 VOLUME /farcry2
 
-EXPOSE 9000-9003/udp 9000/tcp
-
-COPY files/ /
+EXPOSE 9000-9003/udp 9000-9003/tcp
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-

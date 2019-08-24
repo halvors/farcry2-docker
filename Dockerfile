@@ -27,29 +27,14 @@ RUN set -x && \
     apt-get install -y curl lib32stdc++6 lib32ncurses5 lib32z1 && \
     curl -sSL "$url" -o "$archive" && \
     echo "$SHA256  $archive" | sha256sum -c || \
-    (sha256sum  "$ARCHIVE_FILE" && file "$ARCHIVE_FILE" && exit 1) && \
+    (sha256sum "$ARCHIVE_FILE" && file "$ARCHIVE_FILE" && exit 1) && \
     tar xzf "$archive" --directory /opt && \
     mv $directory /opt/farcry2 && \
     chmod ugo=rwx /opt/farcry2 && \
     rm "$archive" && \
-
-#    rm /opt/farcry2/bin/pb/htm/* && \
-#    rm /opt/farcry2/bin/pb/*.db && \
-#    rm /opt/farcry2/bin/pb/*.dat && \
-
-#    mkdir /opt/farcry2/bin/pb/dll && \
-#    mv /pb/dll/*.* /opt/farcry2/bin/pb/dll && \
-#    rmdir /pb/dll && \
-#    mv /pb/htm/*.* /opt/farcry2/bin/pb/htm && \
-#    rmdir /pb/htm && \
-#    mv /pb/*.* /opt/farcry2/bin/pb && \
-#    rmdir /pb && \
-#    ln -s "$MAPS" /opt/farcry2/user\ maps && \
     groupadd -g "$PGID" "$GROUP" && \
     useradd -u "$PUID" -g "$GROUP" -s /bin/sh "$USER" && \
     chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2
-
-#    echo "sv_punkbuster 1" > /opt/farcry2/bin/pb/pbsvgame.cfg
 
 VOLUME /farcry2
 

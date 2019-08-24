@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eoux pipefail
+#set -eoux pipefail
 
 VOLUME=/farcry2
 mkdir -p "$VOLUME"

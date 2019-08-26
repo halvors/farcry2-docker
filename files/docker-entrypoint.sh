@@ -14,6 +14,14 @@ if [[ ! -f $CONFIG/server.cfg ]]; then
   cp /server.cfg "$CONFIG/server.cfg"
 fi
 
+if [[ $(id -u) = 0 ]]; then
+  # Update the User and Group ID based on the PUID/PGID variables
+  usermod -o -u "$PUID" "$USER"
+  groupmod -o -g "$PGID" "$GROUP"
+  # Take ownership of farcry2 data if running as root
+  chown -R "$USER":"$GROUP" "$VOLUME"
+fi
+
 # Change working directory.
 cd /opt/farcry2/bin
 
@@ -22,4 +30,3 @@ exec ./FarCry2_server \
   -dedicated "$CONFIG"/server.cfg \
   -logFile "$LOGS"/server.log \
   "$@"
-

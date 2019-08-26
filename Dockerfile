@@ -22,18 +22,21 @@ RUN set -x && \
     mkdir -p /opt /farcry2 && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y curl lib32stdc++6 lib32ncurses5 lib32z1 && \
+    apt-get install -y curl gcc libc6-dev-i386 sudo lib32stdc++6 lib32ncurses5 lib32z1 && \
     curl -sSL "$url" -o "$archive" && \
     echo "$SHA256  $archive" | sha256sum -c || \
     (sha256sum "$ARCHIVE_FILE" && file "$ARCHIVE_FILE" && exit 1) && \
     tar xzf "$archive" --directory /opt && \
     mv $directory /opt/farcry2 && \
     rm "$archive" && \
-    mv /patch.so /opt/farcry2/bin && \
+    gcc /patch.c -shared -fPIC -ldl -o /opt/farcry2/bin/patch.so -m32 && \
+    rm /patch.c && \
     chmod ugo=rwx /opt/farcry2 && \
     groupadd -g "$PGID" "$GROUP" && \
     useradd -u "$PUID" -g "$GROUP" -s /bin/sh "$USER" && \
-    chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2
+    chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2 && \
+    apt-get purge -y curl gcc libc6-dev-i386 && \
+    apt-get autoremove -y --purge
 
 VOLUME /farcry2
 

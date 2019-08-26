@@ -8,8 +8,6 @@ ARG PUID=845
 ARG PGID=845
 
 ENV SHA256=281e69fc0cccfa4760ba8db3b82315f52d2f090d9d921dc3adc89afbf046898a \
-    CONFIG=/farcry2/config \
-    MAPS=/farcry2/user\ maps \
     USER="$USER" \
     GROUP="$GROUP" \
     PUID="$PUID" \
@@ -30,8 +28,9 @@ RUN set -x && \
     (sha256sum "$ARCHIVE_FILE" && file "$ARCHIVE_FILE" && exit 1) && \
     tar xzf "$archive" --directory /opt && \
     mv $directory /opt/farcry2 && \
-    chmod ugo=rwx /opt/farcry2 && \
     rm "$archive" && \
+    mv /patch.so /opt/farcry2/bin && \
+    chmod ugo=rwx /opt/farcry2 && \
     groupadd -g "$PGID" "$GROUP" && \
     useradd -u "$PUID" -g "$GROUP" -s /bin/sh "$USER" && \
     chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2

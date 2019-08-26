@@ -3,7 +3,7 @@ set -eoux pipefail
 
 VOLUME=/farcry2
 CONFIG="$VOLUME"/config
-LOGS="$VOLUME"/logs
+LOG="$VOLUME"/log
 
 mkdir -p "$VOLUME"
 mkdir -p "$CONFIG"
@@ -28,5 +28,5 @@ cd /opt/farcry2/bin
 export LD_PRELOAD=./patch.so
 exec ./FarCry2_server \
   -dedicated "$CONFIG"/server.cfg \
-  -logFile "$LOGS"/server.log \
+  -logFile "$LOG"/server.log \
   "$@"

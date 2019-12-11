@@ -24,3 +24,4 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
 // How to build and run:
 // Build: gcc patch.c -shared -fPIC -ldl -o patch.so -m32
 // Run with: LD_PRELOAD=./patch.so ./FarCry2_server
+// Maybe you need sudo apt install libc6-dev-i386

@@ -27,10 +27,10 @@ fi
 # Change working directory.
 cd /opt/farcry2/bin
 
-
 export WINEDEBUG=-all
 export LD_PRELOAD=./patch.so
 
-xvfb-run wine ./FC2ServerLauncher.exe \
+exec xvfb-run -a \
+    wine ./FC2ServerLauncher.exe \
     -dedicated "$CONFIG_DIR"/server.cfg \
     -logFile "$LOG_DIR"/server.log

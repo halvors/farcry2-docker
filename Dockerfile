@@ -16,8 +16,7 @@ ENV CHECKSUM_LINUX="281e69fc0cccfa4760ba8db3b82315f52d2f090d9d921dc3adc89afbf046
     USER="$USER" \
     GROUP="$GROUP" \
     PUID="$PUID" \
-    PGID="$PGID" \
-    DISPLAY=:99
+    PGID="$PGID"
 
 COPY files/ /
 
@@ -37,6 +36,7 @@ RUN set -x && \
     cd farcry2 && \
     mv data_linux Data_Win32 && \
     cd bin && \
+    rm FarCry2_server && \
     curl -sSL "https://static3.cdn.ubi.com/far_cry_2/FC2ServerLauncher_103_R2.rar" -o "$ARCHIVE_WIN32" && \
     unrar e -o+ "$ARCHIVE_WIN32" && \
     rm "$ARCHIVE_WIN32" && \

@@ -27,7 +27,6 @@ RUN set -x && \
     apt-get upgrade -y && \
     apt-get install -y bash curl unrar gcc libc6-dev-i386 xvfb wine32 && \
     mkdir -p /opt /farcry2/{config,logs} && \
-    mv /server.cfg /farcry2/config && \
     curl -sSL "https://static3.cdn.ubi.com/far_cry_2/FarCry2_Dedicated_Server_Linux.tar.gz" -o "$ARCHIVE_LINUX" && \
     echo "$CHECKSUM_LINUX $ARCHIVE_LINUX" | sha256sum -c || \
     (sha256sum $ARCHIVE_LINUX && file $ARCHIVE_LINUX && exit 1) && \

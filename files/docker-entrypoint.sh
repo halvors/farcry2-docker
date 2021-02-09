@@ -7,7 +7,7 @@ LOG="$VOLUME"/log
 
 mkdir -p "$VOLUME"
 mkdir -p "$CONFIG"
-mkdir -p "$LOGS"
+mkdir -p "$LOG"
 
 if [[ ! -f $CONFIG/server.cfg ]]; then
   # Copy default settings if server.cfg doesn't exist.
@@ -20,13 +20,21 @@ if [[ $(id -u) = 0 ]]; then
   groupmod -o -g "$PGID" "$GROUP"
   # Take ownership of farcry2 data if running as root
   chown -R "$USER":"$GROUP" "$VOLUME"
+  # Drop to the factorio user
+  SU_EXEC="su-exec farcry2"
+else
+  SU_EXEC=""
 fi
 
 # Change working directory.
 cd /opt/farcry2/bin
 
-export LD_PRELOAD=./patch.so
-exec ./FarCry2_server \
-  -dedicated "$CONFIG"/server.cfg \
-  -logFile "$LOG"/server.log \
-  "$@"
+#export DISPLAY=:0
+#Xvfb :0 -screen 0 800x600x16 &
+
+LD_PRELOAD=./patch.so xvfb-run wine ./FC2ServerLauncher.exe
+
+#xvfb-run wine ./FC2ServerLauncher.exe \
+#    -dedicated "$CONFIG"/server.cfg \
+#    -logFile "$LOG"/server.log \
+#    "$@"

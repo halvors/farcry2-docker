@@ -16,18 +16,18 @@ ENV CHECKSUM_LINUX="281e69fc0cccfa4760ba8db3b82315f52d2f090d9d921dc3adc89afbf046
     USER="$USER" \
     GROUP="$GROUP" \
     PUID="$PUID" \
-    PGID="$PGID"
+    PGID="$PGID" \
+    DISPLAY=:99
 
-ENV DISPLAY=:99
-
-COPY files/patch.c /
+COPY files/ /
 
 RUN set -x && \
     dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y bash curl unrar gcc libc6-dev-i386 xvfb wine32 && \
-    mkdir -p /opt /farcry2 && \
+    mkdir -p /opt /farcry2/{config,logs} && \
+    mv /server.cfg /farcry2/config && \
     curl -sSL "https://static3.cdn.ubi.com/far_cry_2/FarCry2_Dedicated_Server_Linux.tar.gz" -o "$ARCHIVE_LINUX" && \
     echo "$CHECKSUM_LINUX $ARCHIVE_LINUX" | sha256sum -c || \
     (sha256sum $ARCHIVE_LINUX && file $ARCHIVE_LINUX && exit 1) && \
@@ -49,8 +49,6 @@ RUN set -x && \
     groupadd -g "$PGID" "$GROUP" && \
     useradd -u "$PUID" -g "$GROUP" -s /bin/sh "$USER" && \
     chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2
-
-COPY files/ /
 
 VOLUME /farcry2
 

@@ -5,10 +5,15 @@
 #include <dlfcn.h>
 #include <arpa/inet.h>
 
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-
 #include <netdb.h>
+
+#include <ifaddrs.h>
+#include <net/if.h>
+
+#include <stdio.h>
 
 typedef int (*connect_t)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 connect_t real_connect;
@@ -44,14 +49,41 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
     return real_connect(sockfd, addr, addrlen);
 }
 
+void getipbyname(char **name)
+{
+	struct ifaddrs *ifaddr_list;
+
+        if (getifaddrs(&ifaddr_list) < 0) {
+                return;
+        }
+
+        struct ifaddrs *ifaddr = ifaddr_list;
+        //char name[15];
+
+        while (ifaddr) {
+                int family = ifaddr->ifa_addr->sa_family;
+
+                if (family == AF_INET && (ifaddr->ifa_flags & IFF_LOOPBACK) == 0) {
+                        getnameinfo(ifaddr->ifa_addr, sizeof(*ifaddr->ifa_addr), *name, sizeof(*name), 0, 0, NI_NUMERICHOST);
+                }
+
+                ifaddr = ifaddr->ifa_next;
+        }
+
+        freeifaddrs(ifaddr_list);
+}
+
 struct hostent *gethostbyname(const char *name)
 {
     if (!real_gethostbyname)
         real_gethostbyname = dlsym(RTLD_NEXT, "gethostbyname");
 
-    printf("IP address is: %s-----------------------------------------------------------------------------------------------------------------------------------------\n", name);
+    printf("IP address is: %s----------------------------------------------------\n", name);
+    getipbyname((char**)&name);
 
-    return real_gethostbyname("0.0.0.0");
+    printf("Changed to: %s--------------------------------------------------------\n", name);
+
+    return real_gethostbyname(name);
 }
 
 // How to build and run:

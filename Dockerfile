@@ -22,7 +22,7 @@ RUN set -x && \
     dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y bash curl unrar gcc libc6-dev-i386 sudo xvfb wine32 && \
+    apt-get install -y curl unrar gcc libc6-dev-i386 sudo xvfb wine32 && \
     mkdir -p /opt /farcry2/{config,logs} && \
     curl -sSL "https://static3.cdn.ubi.com/far_cry_2/FarCry2_Dedicated_Server_Linux.tar.gz" -o "$ARCHIVE_LINUX" && \
     echo "$CHECKSUM_LINUX $ARCHIVE_LINUX" | sha256sum -c || \
@@ -44,7 +44,7 @@ COPY files/patch.c /
 RUN set -x && \
     gcc /patch.c -shared -fPIC -ldl -o /opt/farcry2/bin/patch.so -m32 && \
     rm /patch.c && \
-    apt-get purge -y curl unrar gcc libc6-dev-i386 iproute2 && \
+    apt-get purge -y curl unrar gcc libc6-dev-i386 && \
     apt-get autoremove -y --purge
 
 COPY files/ /
@@ -54,9 +54,23 @@ RUN set -x && \
     useradd -u "$PUID" -g "$GROUP" -s /bin/sh -m "$USER" && \
     chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2
 
+RUN set -x && \
+    apt-get install -y unzip && \
+    cd /opt/farcry2/bin && \
+    unzip -o /mppatch.zip && \
+    apt-get purge -y unzip && \
+    apt-get autoremove --purge
+
 VOLUME /farcry2
 
 #EXPOSE 9000-9003/udp 9000-9003/tcp
-EXPOSE 9000-9003
+EXPOSE 9000/udp
+EXPOSE 9001/udp
+EXPOSE 9002/udp
+EXPOSE 9003/udp
+EXPOSE 9000/tcp
+EXPOSE 9001/tcp
+EXPOSE 9002/tcp
+EXPOSE 9003/tcp
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

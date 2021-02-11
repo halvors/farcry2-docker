@@ -33,9 +33,9 @@ fi
 # Change working directory.
 cd /opt/farcry2/bin
 
-#export WINEARCH=win32
+export WINEARCH=win32
 export WINEDEBUG=-all
-export LD_PRELOAD=./patch.so
+#export LD_PRELOAD=./patch.so
 
 exec xvfb-run -a \
     wine ./FC2ServerLauncher.exe \

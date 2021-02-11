@@ -5,9 +5,10 @@ services:
     build: .
     restart: always
     ports:
-     - "9000-9003:9000-9003"
+     - "9000-9003:9000-9003/udp"
+     - "9000-9003:9000-9003/tcp"
     volumes:
      - ./data:/farcry2
     environment:
-     - PUID=1001
-     - PGID=1001
+     - PUID=1000
+     - PGID=1000

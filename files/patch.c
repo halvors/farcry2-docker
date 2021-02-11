@@ -5,23 +5,33 @@
 #include <dlfcn.h>
 #include <arpa/inet.h>
 
-typedef int (*connect_t)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-typedef int (*bind_t)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+#include <sys/types.h>
+#include <sys/socket.h>
 
+#include <netdb.h>
+
+typedef int (*connect_t)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 connect_t real_connect;
+
+typedef int (*bind_t)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 bind_t real_bind;
 
-int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
+typedef struct hostent *(*gethostbyname_t)(const char *name);
+gethostbyname_t real_gethostbyname;
+
+int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
+{
     if (!real_bind)
         real_bind = dlsym(RTLD_NEXT, "bind");
 
     struct sockaddr_in *addr_in = (struct sockaddr_in*)addr;
     addr_in->sin_addr.s_addr = INADDR_ANY;
 
-    return real_bind(sockfd, addr, addlen);
+    return real_bind(sockfd, addr, addrlen);
 }
 
-int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
+int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
+{
     if (!real_connect)
         real_connect = dlsym(RTLD_NEXT, "connect");
 
@@ -32,6 +42,16 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
         addr_in->sin_port = htons(3035);
 
     return real_connect(sockfd, addr, addrlen);
+}
+
+struct hostent *gethostbyname(const char *name)
+{
+    if (!real_gethostbyname)
+        real_gethostbyname = dlsym(RTLD_NEXT, "gethostbyname");
+
+    printf("IP address is: %s-----------------------------------------------------------------------------------------------------------------------------------------\n", name);
+
+    return real_gethostbyname("0.0.0.0");
 }
 
 // How to build and run:

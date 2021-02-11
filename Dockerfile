@@ -22,7 +22,7 @@ RUN set -x && \
     dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y bash curl unrar gcc libc6-dev-i386 sudo xvfb wine && \
+    apt-get install -y bash curl unrar gcc libc6-dev-i386 sudo xvfb wine32 && \
     mkdir -p /opt /farcry2/{config,logs} && \
     curl -sSL "https://static3.cdn.ubi.com/far_cry_2/FarCry2_Dedicated_Server_Linux.tar.gz" -o "$ARCHIVE_LINUX" && \
     echo "$CHECKSUM_LINUX $ARCHIVE_LINUX" | sha256sum -c || \
@@ -44,7 +44,7 @@ COPY files/patch.c /
 RUN set -x && \
     gcc /patch.c -shared -fPIC -ldl -o /opt/farcry2/bin/patch.so -m32 && \
     rm /patch.c && \
-    apt-get purge -y curl unrar gcc libc6-dev-i386 && \
+    apt-get purge -y curl unrar gcc libc6-dev-i386 iproute2 && \
     apt-get autoremove -y --purge
 
 COPY files/ /

@@ -18,7 +18,7 @@ ENV CHECKSUM_LINUX="281e69fc0cccfa4760ba8db3b82315f52d2f090d9d921dc3adc89afbf046
     PUID="$PUID" \
     PGID="$PGID"
 
-COPY files/ /
+COPY files/patch.c /
 
 RUN set -x && \
     dpkg --add-architecture i386 && \
@@ -44,13 +44,15 @@ RUN set -x && \
     rm /patch.c && \
     apt-get purge -y curl unrar gcc libc6-dev-i386 && \
     apt-get autoremove -y --purge && \
-    chmod ugo=rwx /opt/farcry2 && \
+    chmod ugo=rwx /opt/farcry2
+
+COPY files/ /
+
+RUN set -x && \
     groupadd -g "$PGID" "$GROUP" && \
-    useradd -u "$PUID" -g "$GROUP" -s /bin/sh "$USER" && \
+    useradd -u "$PUID" -g "$GROUP" -ms /bin/sh "$USER" && \
     chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2
 
 VOLUME /farcry2
-
 EXPOSE 9000-9003/udp 9000-9003/tcp
-
 ENTRYPOINT ["/docker-entrypoint.sh"]

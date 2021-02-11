@@ -18,13 +18,13 @@ ENV CHECKSUM_LINUX="281e69fc0cccfa4760ba8db3b82315f52d2f090d9d921dc3adc89afbf046
     PUID="$PUID" \
     PGID="$PGID"
 
-COPY files/ /
+COPY files/patch.c /
 
 RUN set -x && \
     dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y bash curl unrar gcc libc6-dev-i386 xvfb wine32 && \
+    apt-get install -y bash curl unrar gcc libc6-dev-i386 sudo xvfb wine32 && \
     mkdir -p /opt /farcry2/{config,logs} && \
     curl -sSL "https://static3.cdn.ubi.com/far_cry_2/FarCry2_Dedicated_Server_Linux.tar.gz" -o "$ARCHIVE_LINUX" && \
     echo "$CHECKSUM_LINUX $ARCHIVE_LINUX" | sha256sum -c || \
@@ -43,10 +43,13 @@ RUN set -x && \
     gcc /patch.c -shared -fPIC -ldl -o /opt/farcry2/bin/patch.so -m32 && \
     rm /patch.c && \
     apt-get purge -y curl unrar gcc libc6-dev-i386 && \
-    apt-get autoremove -y --purge && \
-    chmod ugo=rwx /opt/farcry2 && \
+    apt-get autoremove -y --purge
+
+COPY files/ /
+
+RUN set -x && \
     groupadd -g "$PGID" "$GROUP" && \
-    useradd -u "$PUID" -g "$GROUP" -s /bin/sh "$USER" && \
+    useradd -u "$PUID" -g "$GROUP" -s /bin/sh -m "$USER" && \
     chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2
 
 VOLUME /farcry2

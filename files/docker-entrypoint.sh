@@ -5,17 +5,23 @@ VOLUME=/farcry2
 CONFIG_DIR="$VOLUME"/config
 LOG_DIR="$VOLUME"/logs
 MAP_DIR="$VOLUME"/maps
-HOME_DIR="$(eval echo ~$USER)"
-FC2_DIR="$HOME_DIR"/My\ Games/Far\ Cry\ 2/Server
 
-mkdir -p "$VOLUME" "$CONFIG_DIR" "$LOG_DIR" "$MAP_DIR" "$FC2_DIR"
+HOME_DIR="$(eval echo ~$USER)"
+FC2_DIR="$HOME_DIR"/My\ Games/Far\ Cry\ 2
+
+mkdir -p "$VOLUME" "$CONFIG_DIR" "$LOG_DIR" "$MAP_DIR" "$FC2_DIR"/Server
 
 if [[ ! -f "$CONFIG_DIR"/server.cfg ]]; then
     cp /server.cfg "$CONFIG_DIR"/server.cfg
 fi
 
-if [[ ! -L "$FC2_DIR"/dedicated_server.cfg ]]; then
-    ln -s "$CONFIG_DIR"/server.cfg "$FC2_DIR"/dedicated_server.cfg
+# Symlink files from volume to the correct location inside the container.
+if [[ ! -L "$FC2_DIR"/Server/dedicated_server.cfg ]]; then
+    ln -s "$CONFIG_DIR"/server.cfg "$FC2_DIR"/Server/dedicated_server.cfg
+fi
+
+if [[ ! -L "$FC2_DIR"/user\ maps ]]; then
+    ln -s "$MAP_DIR" "$FC2_DIR"/user\ maps
 fi
 
 if [[ "$EUID" -eq 0 ]]; then

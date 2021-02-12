@@ -16,7 +16,8 @@ ENV CHECKSUM_LINUX="281e69fc0cccfa4760ba8db3b82315f52d2f090d9d921dc3adc89afbf046
     USER="$USER" \
     GROUP="$GROUP" \
     PUID="$PUID" \
-    PGID="$PGID"
+    PGID="$PGID" \
+    PORT=9000
 
 RUN set -x && \
     dpkg --add-architecture i386 && \
@@ -41,14 +42,18 @@ RUN set -x && \
     apt-get purge -y curl unrar && \
     apt-get autoremove -y --purge
 
-COPY files/patch.c /
-
-#RUN set -x && \
-#    apt-get install -y gcc libc6-dev-i386 && \
+RUN set -x && \
+    apt-get install -y gcc libc6-dev-i386
 #    gcc /patch.c -shared -fPIC -ldl -o /opt/farcry2/bin/patch.so -m32 && \
 #    rm /patch.c && \
 #    apt-get purge -y gcc libc6-dev-i386 && \
 #    apt-get autoremove -y --purge
+
+COPY files/patch.c /
+
+RUN set -x && \
+    gcc /patch.c -shared -fPIC -ldl -o /opt/farcry2/bin/patch.so -m32 && \
+    rm /patch.c
 
 RUN set -x && \
     groupadd -g "$PGID" "$GROUP" && \
@@ -57,12 +62,12 @@ RUN set -x && \
 
 COPY files/ /
 
-RUN set -x && \
-    apt-get install -y unzip && \
-    cd /opt/farcry2/bin && \
-    unzip -o /mppatch.zip && \
-    apt-get purge -y unzip && \
-    apt-get autoremove --purge
+#RUN set -x && \
+#    apt-get install -y unzip && \
+#    cd /opt/farcry2/bin && \
+#    unzip -o /mppatch.zip && \
+#    apt-get purge -y unzip && \
+#    apt-get autoremove --purge
 
 VOLUME /farcry2
 

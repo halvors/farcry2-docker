@@ -63,14 +63,6 @@ RUN set -x && \
 
 VOLUME /farcry2
 
-#EXPOSE 9000-9003/udp 9000-9003/tcp
-EXPOSE 9000/udp
-EXPOSE 9001/udp
-EXPOSE 9002/udp
-EXPOSE 9003/udp
-EXPOSE 9000/tcp
-EXPOSE 9001/tcp
-EXPOSE 9002/tcp
-EXPOSE 9003/tcp
+EXPOSE 9000-9003/udp 9000-9003/tcp
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

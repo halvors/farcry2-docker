@@ -10,6 +10,5 @@ services:
     volumes:
      - ./data:/farcry2
     environment:
-     - PUID=1000
-     - PGID=1000
-    network_mode: "host"
+     - PUID=1001
+     - PGID=1001

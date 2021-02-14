@@ -20,24 +20,28 @@ ENV CHECKSUM_LINUX="281e69fc0cccfa4760ba8db3b82315f52d2f090d9d921dc3adc89afbf046
     PGID="$PGID" \
     PORT="$PORT"
 
+COPY files/Data_Win32.zip /
+
 RUN set -x && \
     dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get upgrade -y && \
-#   wine
-    apt-get install -y curl unar sudo xvfb && \
-    mkdir -p /opt /farcry2/{config,logs,maps} && \
-    curl -sSL "https://static3.cdn.ubi.com/far_cry_2/$ARCHIVE_LINUX" -o "/tmp/$ARCHIVE_LINUX" && \
-    echo "$CHECKSUM_LINUX /tmp/$ARCHIVE_LINUX" | sha256sum -c || \
-    (sha256sum "/tmp/$ARCHIVE_LINUX" && file "/tmp/$ARCHIVE_LINUX" && exit 1) && \
+    apt-get install -y curl unzip unar sudo xvfb wine && \
+    mkdir -p /opt && \
+#    mkdir -p /opt /farcry2/{config,logs,maps} && \
+#    curl -sSL "https://static3.cdn.ubi.com/far_cry_2/$ARCHIVE_LINUX" -o "/tmp/$ARCHIVE_LINUX" && \
+#    echo "$CHECKSUM_LINUX /tmp/$ARCHIVE_LINUX" | sha256sum -c || \
+#    (sha256sum "/tmp/$ARCHIVE_LINUX" && file "/tmp/$ARCHIVE_LINUX" && exit 1) && \
     cd /opt && \
-    tar xzf "/tmp/$ARCHIVE_LINUX" --directory . && \
-    rm "/tmp/$ARCHIVE_LINUX" && \
-    mv "${ARCHIVE_LINUX%%.*}" farcry2 && \
+#    tar xzf "/tmp/$ARCHIVE_LINUX" --directory . && \
+#    rm "/tmp/$ARCHIVE_LINUX" && \
+#    mv "${ARCHIVE_LINUX%%.*}" farcry2 && \
+    mkdir farcry2 && \
     cd farcry2 && \
-    mv data_linux Data_Win32 && \
+    unzip -o /Data_Win32.zip && \
+#    mv data_linux Data_Win32 && \
     cd bin && \
-    rm FarCry2_server && \
+#    rm FarCry2_server && \
     curl -sSL "https://static3.cdn.ubi.com/far_cry_2/$ARCHIVE_WIN32" -o "/tmp/$ARCHIVE_WIN32" && \
     echo "$CHECKSUM_WIN32 /tmp/$ARCHIVE_WIN32" | sha256sum -c || \
     (sha256sum "/tmp/$ARCHIVE_WIN32" && file "/tmp/$ARCHIVE_WIN32" && exit 1) && \
@@ -46,33 +50,22 @@ RUN set -x && \
     apt-get purge -y curl unar && \
     apt-get autoremove -y --purge
 
-RUN set -x && \
-    apt-get install -y software-properties-common wget && \
-    wget -nc https://dl.winehq.org/wine-builds/winehq.key && \
-    apt-key add winehq.key && \
-    add-apt-repository -y 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main' && \
-    apt-get update && \
-    apt-get install -y --install-recommends winehq-staging
-
-RUN set -x && \
-    apt-get install -y gcc libc6-dev-i386
-#    gcc /patch.c -shared -fPIC -ldl -o /opt/farcry2/bin/patch.so -m32 && \
-#    rm /patch.c && \
-#    apt-get purge -y gcc libc6-dev-i386 && \
-#    apt-get autoremove -y --purge
-
 COPY files/patch.c /
 
 RUN set -x && \
+    apt-get install -y gcc libc6-dev-i386 && \
     gcc /patch.c -shared -fPIC -ldl -o /opt/farcry2/bin/patch.so -m32 && \
-    rm /patch.c
+    rm /patch.c && \
+    apt-get purge -y gcc libc6-dev-i386 && \
+    apt-get autoremove -y --purge
 
 RUN set -x && \
     groupadd -g "$PGID" "$GROUP" && \
     useradd -u "$PUID" -g "$GROUP" -s /bin/sh -m "$USER" && \
     chown -R "$USER":"$GROUP" /opt/farcry2 /farcry2
 
-COPY files/ /
+COPY files/docker-entrypoint.sh /
+COPY files/server.cfg /
 
 VOLUME /farcry2
 EXPOSE 9000-9003/udp 9000-9003/tcp

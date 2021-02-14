@@ -20,13 +20,8 @@ if [[ ! -L "$FC2_DIR"/Server/dedicated_server.cfg ]]; then
     ln -s "$CONFIG_DIR"/server.cfg "$FC2_DIR"/Server/dedicated_server.cfg
 fi
 
-#if [[ ! -L "$FC2_DIR"/user\ maps ]]; then
-    #ln -s "$MAP_DIR" "$FC2_DIR"/user\ maps
-#fi
-
-if [[ ! -f "$FC2_DIR"/user\ maps ]]; then
-    mkdir -p "$FC2_DIR"/user\ maps
-    cp -R "$MAP_DIR"/Towervalley_3.fc2map "$FC2_DIR"/user\ maps/
+if [[ ! -L "$FC2_DIR"/user\ maps ]]; then
+    ln -s "$MAP_DIR" "$FC2_DIR"/user\ maps
 fi
 
 if [[ "$EUID" -eq 0 ]]; then
@@ -45,11 +40,11 @@ fi
 cd /opt/farcry2/bin
 
 #export WINEARCH=win32
-#export WINEDEBUG=+relay
+#export WINEDEBUG=-all
 export LD_PRELOAD=./patch.so
 
-#exec xvfb-run -a \
-exec wine ./FC2ServerLauncher.exe \
+exec xvfb-run -a \
+     wine ./FC2ServerLauncher.exe \
      -logFile "$LOG_DIR"/server.log
 
 #-dedicated Server/dedicated_server.cfg

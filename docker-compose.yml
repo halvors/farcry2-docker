@@ -11,4 +11,6 @@ services:
      - ./data:/farcry2
     environment:
      - PUID=1000
-     - PGID=133
+     - PGID=1000
+    stdin_open: true
+    tty: true

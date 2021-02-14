@@ -4,43 +4,55 @@ LABEL maintainer="https://github.com/halvors/farcry2-docker"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ARG USER=farcry2
-ARG GROUP=farcry2
-ARG PUID=845
-ARG PGID=845
+ARG USER=farcry2 \
+    GROUP=farcry2 \
+    PUID=845 \
+    PGID=845 \
+    PORT=9000
 
 ENV CHECKSUM_LINUX="281e69fc0cccfa4760ba8db3b82315f52d2f090d9d921dc3adc89afbf046898a" \
     CHECKSUM_WIN32="714b855adadfaf4773affd74be3e70f9df679293504ca06e6e0b54d2205eb6c0" \
-    ARCHIVE_LINUX="/tmp/FarCry2_Dedicated_Server_Linux.tar.gz" \
-    ARCHIVE_WIN32="/tmp/FC2ServerLauncher_103_R2.rar" \
+    ARCHIVE_LINUX="FarCry2_Dedicated_Server_Linux.tar.gz" \
+    ARCHIVE_WIN32="FC2ServerLauncher_103_R2.rar" \
     USER="$USER" \
     GROUP="$GROUP" \
     PUID="$PUID" \
     PGID="$PGID" \
-    PORT=9000
+    PORT="$PORT"
 
 RUN set -x && \
     dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y curl unrar sudo xvfb wine32 && \
-    mkdir -p /opt /farcry2/{config,logs} && \
-    curl -sSL "https://static3.cdn.ubi.com/far_cry_2/FarCry2_Dedicated_Server_Linux.tar.gz" -o "$ARCHIVE_LINUX" && \
-    echo "$CHECKSUM_LINUX $ARCHIVE_LINUX" | sha256sum -c || \
-    (sha256sum $ARCHIVE_LINUX && file $ARCHIVE_LINUX && exit 1) && \
+#   wine
+    apt-get install -y curl unar sudo xvfb && \
+    mkdir -p /opt /farcry2/{config,logs,maps} && \
+    curl -sSL "https://static3.cdn.ubi.com/far_cry_2/$ARCHIVE_LINUX" -o "/tmp/$ARCHIVE_LINUX" && \
+    echo "$CHECKSUM_LINUX /tmp/$ARCHIVE_LINUX" | sha256sum -c || \
+    (sha256sum "/tmp/$ARCHIVE_LINUX" && file "/tmp/$ARCHIVE_LINUX" && exit 1) && \
     cd /opt && \
-    tar xzf "$ARCHIVE_LINUX" --directory . && \
-    rm "$ARCHIVE_LINUX" && \
-    mv FarCry2_Dedicated_Server_Linux farcry2 && \
+    tar xzf "/tmp/$ARCHIVE_LINUX" --directory . && \
+    rm "/tmp/$ARCHIVE_LINUX" && \
+    mv "${ARCHIVE_LINUX%%.*}" farcry2 && \
     cd farcry2 && \
     mv data_linux Data_Win32 && \
     cd bin && \
     rm FarCry2_server && \
-    curl -sSL "https://static3.cdn.ubi.com/far_cry_2/FC2ServerLauncher_103_R2.rar" -o "$ARCHIVE_WIN32" && \
-    unrar e -o+ "$ARCHIVE_WIN32" && \
-    rm "$ARCHIVE_WIN32" && \
-    apt-get purge -y curl unrar && \
+    curl -sSL "https://static3.cdn.ubi.com/far_cry_2/$ARCHIVE_WIN32" -o "/tmp/$ARCHIVE_WIN32" && \
+    echo "$CHECKSUM_WIN32 /tmp/$ARCHIVE_WIN32" | sha256sum -c || \
+    (sha256sum "/tmp/$ARCHIVE_WIN32" && file "/tmp/$ARCHIVE_WIN32" && exit 1) && \
+    unar -q -D "/tmp/$ARCHIVE_WIN32" && \
+    rm "/tmp/$ARCHIVE_WIN32" && \
+    apt-get purge -y curl unar && \
     apt-get autoremove -y --purge
+
+RUN set -x && \
+    apt-get install -y software-properties-common wget && \
+    wget -nc https://dl.winehq.org/wine-builds/winehq.key && \
+    apt-key add winehq.key && \
+    add-apt-repository -y 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main' && \
+    apt-get update && \
+    apt-get install -y --install-recommends winehq-staging
 
 RUN set -x && \
     apt-get install -y gcc libc6-dev-i386
@@ -62,15 +74,6 @@ RUN set -x && \
 
 COPY files/ /
 
-#RUN set -x && \
-#    apt-get install -y unzip && \
-#    cd /opt/farcry2/bin && \
-#    unzip -o /mppatch.zip && \
-#    apt-get purge -y unzip && \
-#    apt-get autoremove --purge
-
 VOLUME /farcry2
-
 EXPOSE 9000-9003/udp 9000-9003/tcp
-
 ENTRYPOINT ["/docker-entrypoint.sh"]

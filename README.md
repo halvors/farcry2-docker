@@ -1,4 +1,4 @@
-# farcry2-docker
+# Far Cry 2 Docker container
 A docker container for running a Far Cry 2 server, since the Far Cry 2 Linux server is broken the Windows version is run through Wine.
 
 ## Far Cry 2 server files availability
